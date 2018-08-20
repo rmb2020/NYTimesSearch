@@ -60,7 +60,7 @@ public class SearchActivity extends AppCompatActivity {
     int totalHits;
     int totalPages;
     String url =  "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-    String apiKey = "695e5019fa1c42bb895130acc6737614";
+    String apiKey = "";// Your api key here
 
 
     @Override
@@ -89,7 +89,7 @@ public class SearchActivity extends AppCompatActivity {
                 // Triggered only when new data needs to be appended to the list
                 // Add whatever code is needed to append new items to your AdapterView
 
-                log.d("scroll", "adapter count " + adapter.getCount() + "totalItemsCount  " + totalItemsCount);
+                //log.d("scroll", "adapter count " + adapter.getCount() + "totalItemsCount  " + totalItemsCount);
                 log.d("Date page", "is " + page);
 
                     loadNextDataFromApi(page);
@@ -194,6 +194,7 @@ public class SearchActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         //final MenuItem searchItem = menu.findItem(R.id.);
         MenuItem searchItem = menu.findItem(R.id.nySearchSettings);
+        //final MenuItem filterItem = menu.findItem(R.id.nyFilter);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -202,7 +203,13 @@ public class SearchActivity extends AppCompatActivity {
                 query = searchQuery;
                 adapter.clear();
                 scrollPage =0;
-                updateData(scrollPage);
+                if (isNetworkAvailable() ) {
+                    updateData(scrollPage);
+                } else {
+                    Toast.makeText(SearchActivity.this, "Internet connection unavailable", Toast.LENGTH_SHORT).show();
+                    //Log.d("net", "Not available");
+
+                }
 
 
                 // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
@@ -214,6 +221,9 @@ public class SearchActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                /*if (newText == "") {
+                    query = "";
+                }*/
                 return false;
             }
         });
@@ -241,7 +251,11 @@ public class SearchActivity extends AppCompatActivity {
                 return true;
             case R.id.nyFilter:
                 // filter search
-                filterResults();
+                if ((query !=null)){
+                    filterResults();
+                } else {
+                    Toast.makeText(this, "Please enter a search term",Toast.LENGTH_SHORT).show();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -277,11 +291,11 @@ public class SearchActivity extends AppCompatActivity {
 
             adapter.clear();
             scrollPage =0;
-            //if (isNetworkAvailable()) {
+            if (isNetworkAvailable()) {
                 updateData(scrollPage);
-            //} else {
-            //    Toast.makeText(this, "Internet connection unavailable", Toast.LENGTH_SHORT).show();
-            //}
+            } else {
+                Toast.makeText(this, "Internet connection unavailable", Toast.LENGTH_SHORT).show();
+            }
             //scrollPage = 0;
             //filterQuery(returnDate,returnSort,returnCategory);
 
